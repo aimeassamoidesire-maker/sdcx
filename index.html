@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Expert – Boutique Tech</title>
+  <style>
+    /* ——— Reset & palette ——— */
+    :root {
+      --primary: #1a73e8;
+      --danger: #e53935;
+      --bg: #f5f6fa;
+      --txt: #333;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--txt); }
+
+    /* ——— Header / navbar ——— */
+    header { position: sticky; top: 0; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.1); z-index: 10; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: .75rem 0; }
+    .logo { font-weight: 700; font-size: 1.3rem; color: var(--primary); text-decoration: none; }
+    .categories { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .categories a { color: var(--txt); text-decoration: none; font-weight: 500; }
+    .cart-btn { position: relative; background: none; border: none; font-size: 1.3rem; cursor: pointer; }
+    .cart-count { position: absolute; top: -6px; right: -10px; background: var(--danger); color: #fff; border-radius: 50%; font-size: .75rem; padding: 0 6px; }
+
+    /* ——— Product grid ——— */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; padding: 2rem 0; }
+    .card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,.05); display: flex; flex-direction: column; }
+    .card img { width: 100%; height: 160px; object-fit: cover; }
+    .card .info { padding: .75rem; flex-grow: 1; display: flex; flex-direction: column; }
+    .card h3 { font-size: 1rem; margin-bottom: .25rem; }
+    .price { margin-top: auto; font-weight: 700; }
+    .badge { position: absolute; top: 8px; left: 8px; background: var(--primary); color: #fff; font-size: .7rem; padding: 2px 6px; border-radius: 4px; }
+    .badge.sale { background: var(--danger); }
+    .badge.out { background: #616161; }
+    .btn { margin-top: .5rem; padding: .5rem; border: none; border-radius: 4px; background: var(--primary); color: #fff; cursor: pointer; font-size: .9rem; }
+    .btn:disabled { background: #888; cursor: not-allowed; }
+
+    /* ——— Cart side‑panel ——— */
+    #cart-modal { position: fixed; top: 0; right: 0; width: 300px; height: 100vh; background: #fff; box-shadow: -2px 0 6px rgba(0,0,0,.2); transform: translateX(100%); transition: transform .3s ease; display: flex; flex-direction: column; z-index: 100; }
+    #cart-modal.open { transform: translateX(0); }
+    #cart-modal header { padding: 1rem; border-bottom: 1px solid #eee; font-weight: 700; }
+    .cart-items { flex-grow: 1; overflow: auto; }
+    .cart-item { display: flex; justify-content: space-between; padding: .5rem 1rem; border-bottom: 1px solid #f1f1f1; font-size: .9rem; }
+    .cart-total { padding: 1rem; font-weight: 700; }
+    .cart-actions { padding: 1rem; border-top: 1px solid #eee; display: flex; gap: .5rem; }
+    .cart-actions button { flex: 1; padding: .5rem; border: none; border-radius: 4px; font-size: .9rem; cursor: pointer; }
+    .cart-actions .checkout { background: var(--primary); color: #fff; }
+    .cart-actions .clear { background: var(--danger); color: #fff; }
+  </style>
+</head>
+<body>
+  <!-- ——— Navbar ——— -->
+  <header>
+    <div class="container">
+      <nav>
+        <a class="logo" href="#">Project Expert</a>
+        <div class="categories">
+          <a href="#">PC COMPLET</a>
+          <a href="#">COMPOSANTS PC</a>
+          <a href="#">ACCESSOIRES</a>
+          <a href="#">ÉCRAN</a>
+          <a href="#">AUDIO</a>
+          <a href="#">ÉCLAIRAGE</a>
+        </div>
+        <button id="cart-button" class="cart-btn">🛒<span id="cart-count" class="cart-count">0</span></button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ——— Product grid ——— -->
+  <div class="container">
+    <section class="grid" id="product-grid"><!-- Injecté par JS --></section>
+  </div>
+
+  <!-- ——— Cart panel ——— -->
+  <div id="cart-modal">
+    <header>Mon Panier</header>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-total" id="cart-total">Total : 0 CFA</div>
+    <div class="cart-actions">
+      <button class="checkout">Commander</button>
+      <button class="clear" id="clear-cart">Vider</button>
+    </div>
+  </div>
+
+  <!-- ——— Demo JS (localStorage cart) ——— -->
+  <script>
+    // Démo : liste produit mockée
+    const products = [
+      { id: 1, name: "Intel Core i7‑12700K",  price: 170000, img: "https://via.placeholder.com/400x300?text=i7‑12700K",  sale: true,  stock: true  },
+      { id: 2, name: "AMD Ryzen 7 5800XT",   price: 135000, img: "https://via.placeholder.com/400x300?text=Ryzen+7+5800XT", sale: false, stock: true  },
+      { id: 3, name: "ASUS RTX 4090 – 24GB", price: 1365000, img: "https://via.placeholder.com/400x300?text=RTX+4090",      sale: false, stock: false },
+      { id: 4, name: "Corsair Vengeance 32 Go 6000 MHz", price: 100000, img: "https://via.placeholder.com/400x300?text=DDR5+6000", sale: true, stock: true }
+    ];
+
+    const grid       = document.getElementById("product-grid");
+    const cartModal  = document.getElementById("cart-modal");
+    const cartCount  = document.getElementById("cart-count");
+    const cartItemsDiv = document.getElementById("cart-items");
+    const cartTotal  = document.getElementById("cart-total");
+    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+    function renderProducts () {
+      grid.innerHTML = "";
+      products.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div style="position:relative">
+            <img src="${p.img}" alt="${p.name}" />
+            ${!p.stock ? '<span class="badge out">OUT OF STOCK</span>' : ''}
+            ${p.sale   ? '<span class="badge sale">SALE</span>'          : ''}
+          </div>
+          <div class="info">
+            <h3>${p.name}</h3>
+            <div class="price">${p.price.toLocaleString()} CFA</div>
+            <button class="btn" ${!p.stock ? 'disabled' : ''} onclick="addToCart(${p.id})">Ajouter au panier</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function addToCart (id) {
+      const prod = products.find(p => p.id === id);
+      cart.push(prod);
+      updateCart();
+    }
+
+    function updateCart () {
+      localStorage.setItem("cart", JSON.stringify(cart));
+      cartCount.textContent = cart.length;
+      cartItemsDiv.innerHTML = "";
+      let total = 0;
+      cart.forEach(item => {
+        total += item.price;
+        const ci = document.createElement("div");
+        ci.className = "cart-item";
+        ci.innerHTML = `<span>${item.name}</span><span>${item.price.toLocaleString()} CFA</span>`;
+        cartItemsDiv.appendChild(ci);
+      });
+      cartTotal.textContent = `Total : ${total.toLocaleString()} CFA`;
+    }
+
+    // ——— Events ———
+    document.getElementById("cart-button").addEventListener("click", () => cartModal.classList.toggle("open"));
+    document.getElementById("clear-cart").addEventListener("click", () => { cart = []; updateCart(); });
+    window.addEventListener("load", () => { renderProducts(); updateCart(); });
+  </script>
+</body>
+</html>
