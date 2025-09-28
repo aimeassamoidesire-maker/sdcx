@@ -3,152 +3,168 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Project Expert – Boutique Tech</title>
+  <title>Bluetek CI – Boutique Tech</title>
   <style>
-    /* ——— Reset & palette ——— */
+    /* —— Palette Bluetek CI ————————————————————— */
     :root {
-      --primary: #1a73e8;
-      --danger: #e53935;
-      --bg: #f5f6fa;
-      --txt: #333;
+      --bt-primary: #0077cc;   /* bleu logo */
+      --bt-accent:  #00b5e2;   /* cyan logo */
+      --bt-dark:    #0f1a25;
+      --bt-light:   #f5f8fb;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--txt); }
+    /* ——— Reset & helpers ——— */
+    * {box-sizing: border-box;margin:0;padding:0;font-family: "Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;}
+    body {background: var(--bt-light);color: var(--bt-dark);}
+    a {text-decoration: none;color: inherit;}
+    button {cursor:pointer;border:none;background:var(--bt-primary);color:#fff;padding:.4rem .8rem;border-radius:4px;transition:background .2s;}
+    button:hover{background:var(--bt-accent);}   
+    /* ——— Layout ——— */
+    header{background:var(--bt-dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;position:sticky;top:0;z-index:10;}
+    .logo{font-size:1.5rem;font-weight:700;letter-spacing:1px;color:var(--bt-accent);}   
+    nav{display:flex;gap:1rem;flex-wrap:wrap;}
+    nav a{color:#fff;font-size:.9rem;padding:.25rem .5rem;border-radius:4px;opacity:.85;}
+    nav a:hover{background:rgba(255,255,255,.15);opacity:1;}
 
-    /* ——— Header / navbar ——— */
-    header { position: sticky; top: 0; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.1); z-index: 10; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
-    nav { display: flex; align-items: center; justify-content: space-between; padding: .75rem 0; }
-    .logo { font-weight: 700; font-size: 1.3rem; color: var(--primary); text-decoration: none; }
-    .categories { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .categories a { color: var(--txt); text-decoration: none; font-weight: 500; }
-    .cart-btn { position: relative; background: none; border: none; font-size: 1.3rem; cursor: pointer; }
-    .cart-count { position: absolute; top: -6px; right: -10px; background: var(--danger); color: #fff; border-radius: 50%; font-size: .75rem; padding: 0 6px; }
+    .cart-btn{position:relative;}
+    .cart-count{position:absolute;top:-6px;right:-6px;background:var(--bt-accent);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;}
 
-    /* ——— Product grid ——— */
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; padding: 2rem 0; }
-    .card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,.05); display: flex; flex-direction: column; }
-    .card img { width: 100%; height: 160px; object-fit: cover; }
-    .card .info { padding: .75rem; flex-grow: 1; display: flex; flex-direction: column; }
-    .card h3 { font-size: 1rem; margin-bottom: .25rem; }
-    .price { margin-top: auto; font-weight: 700; }
-    .badge { position: absolute; top: 8px; left: 8px; background: var(--primary); color: #fff; font-size: .7rem; padding: 2px 6px; border-radius: 4px; }
-    .badge.sale { background: var(--danger); }
-    .badge.out { background: #616161; }
-    .btn { margin-top: .5rem; padding: .5rem; border: none; border-radius: 4px; background: var(--primary); color: #fff; cursor: pointer; font-size: .9rem; }
-    .btn:disabled { background: #888; cursor: not-allowed; }
+    main{padding:2rem;max-width:1200px;margin:auto;}
+    #products{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1.5rem;}
+    .card{background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.08);overflow:hidden;display:flex;flex-direction:column;}
+    .card img{width:100%;height:140px;object-fit:contain;background:#f0f3f6;}
+    .card h3{font-size:1rem;font-weight:600;padding:.5rem 1rem;flex:1;}
+    .card p{padding:0 1rem 1rem;font-weight:600;color:var(--bt-primary);}   
 
-    /* ——— Cart side‑panel ——— */
-    #cart-modal { position: fixed; top: 0; right: 0; width: 300px; height: 100vh; background: #fff; box-shadow: -2px 0 6px rgba(0,0,0,.2); transform: translateX(100%); transition: transform .3s ease; display: flex; flex-direction: column; z-index: 100; }
-    #cart-modal.open { transform: translateX(0); }
-    #cart-modal header { padding: 1rem; border-bottom: 1px solid #eee; font-weight: 700; }
-    .cart-items { flex-grow: 1; overflow: auto; }
-    .cart-item { display: flex; justify-content: space-between; padding: .5rem 1rem; border-bottom: 1px solid #f1f1f1; font-size: .9rem; }
-    .cart-total { padding: 1rem; font-weight: 700; }
-    .cart-actions { padding: 1rem; border-top: 1px solid #eee; display: flex; gap: .5rem; }
-    .cart-actions button { flex: 1; padding: .5rem; border: none; border-radius: 4px; font-size: .9rem; cursor: pointer; }
-    .cart-actions .checkout { background: var(--primary); color: #fff; }
-    .cart-actions .clear { background: var(--danger); color: #fff; }
+    /* ——— Cart drawer ——— */
+    #cartDrawer{position:fixed;top:0;right:-400px;width:340px;max-width:90%;height:100%;background:#fff;box-shadow:-4px 0 12px rgba(0,0,0,.15);transition:right .3s;display:flex;flex-direction:column;z-index:20;}
+    #cartDrawer.open{right:0;}
+    #cartDrawer header{background:var(--bt-primary);color:#fff;padding:1rem;font-size:1.2rem;display:flex;justify-content:space-between;align-items:center;}
+    #cartItems{flex:1;overflow:auto;padding:1rem;display:flex;flex-direction:column;gap:.8rem;}
+    .cart-item{display:flex;justify-content:space-between;align-items:center;}
+    .cart-item span{font-size:.9rem;}
+    .total{font-weight:700;margin-top:auto;padding:1rem;border-top:1px solid #ddd;}
   </style>
 </head>
 <body>
-  <!-- ——— Navbar ——— -->
+  <!-- ——— Header ——— -->
   <header>
-    <div class="container">
-      <nav>
-        <a class="logo" href="#">Project Expert</a>
-        <div class="categories">
-          <a href="#">PC COMPLET</a>
-          <a href="#">COMPOSANTS PC</a>
-          <a href="#">ACCESSOIRES</a>
-          <a href="#">ÉCRAN</a>
-          <a href="#">AUDIO</a>
-          <a href="#">ÉCLAIRAGE</a>
-        </div>
-        <button id="cart-button" class="cart-btn">🛒<span id="cart-count" class="cart-count">0</span></button>
-      </nav>
-    </div>
+    <div class="logo">Bluetek CI</div>
+    <nav id="categoryNav">
+      <!-- catégories générées dynamiquement -->
+    </nav>
+    <button class="cart-btn" id="toggleCart">🛒<span class="cart-count" id="cartCount">0</span></button>
   </header>
 
-  <!-- ——— Product grid ——— -->
-  <div class="container">
-    <section class="grid" id="product-grid"><!-- Injecté par JS --></section>
-  </div>
+  <!-- ——— Main catalogue ——— -->
+  <main>
+    <div id="products"></div>
+  </main>
 
-  <!-- ——— Cart panel ——— -->
-  <div id="cart-modal">
-    <header>Mon Panier</header>
-    <div class="cart-items" id="cart-items"></div>
-    <div class="cart-total" id="cart-total">Total : 0 CFA</div>
-    <div class="cart-actions">
-      <button class="checkout">Commander</button>
-      <button class="clear" id="clear-cart">Vider</button>
-    </div>
-  </div>
+  <!-- ——— Cart drawer ——— -->
+  <aside id="cartDrawer">
+    <header>
+      <span>Mon Panier</span>
+      <button id="closeCart">✕</button>
+    </header>
+    <div id="cartItems"></div>
+    <div class="total" id="cartTotal">Total : 0 CFA</div>
+  </aside>
 
-  <!-- ——— Demo JS (localStorage cart) ——— -->
+  <!-- ——— Script ——— -->
   <script>
-    // Démo : liste produit mockée
-    const products = [
-      { id: 1, name: "Intel Core i7‑12700K",  price: 170000, img: "https://via.placeholder.com/400x300?text=i7‑12700K",  sale: true,  stock: true  },
-      { id: 2, name: "AMD Ryzen 7 5800XT",   price: 135000, img: "https://via.placeholder.com/400x300?text=Ryzen+7+5800XT", sale: false, stock: true  },
-      { id: 3, name: "ASUS RTX 4090 – 24GB", price: 1365000, img: "https://via.placeholder.com/400x300?text=RTX+4090",      sale: false, stock: false },
-      { id: 4, name: "Corsair Vengeance 32 Go 6000 MHz", price: 100000, img: "https://via.placeholder.com/400x300?text=DDR5+6000", sale: true, stock: true }
+    /********************  Catalogue & Data  ********************/
+    const catalogue = [
+      {id:1,cat:"PC COMPLET",name:"VALVE – Steam Deck 1 TB",price:295000,img:"https://dummyimage.com/600x400/ced4da/000&text=Steam+Deck"},
+      {id:2,cat:"COMPOSANTS PC",name:"Phanteks Glacier One 360M25",price:115000,img:"https://dummyimage.com/600x400/ced4da/000&text=Phanteks+Glacier+One"},
+      {id:3,cat:"COMPOSANTS PC",name:"Intel Core i7‑12700K",price:170000,img:"https://dummyimage.com/600x400/ced4da/000&text=i7‑12700K"},
+      {id:4,cat:"COMPOSANTS PC",name:"ASUS RTX 4080 Strix 16 GB",price:1128000,img:"https://dummyimage.com/600x400/ced4da/000&text=RTX+4080+Strix"},
+      {id:5,cat:"ACCESSOIRES",name:"Corsair Vengeance RGB 32 GB DDR5",price:100000,img:"https://dummyimage.com/600x400/ced4da/000&text=Corsair+DDR5"},
+      {id:6,cat:"ECRAN",name:"MSI PRO MP273A 27'' 1080p",price:125000,img:"https://dummyimage.com/600x400/ced4da/000&text=MSI+27\""},
+      {id:7,cat:"AUDIO",name:"Logitech G Pro X Headset",price:85000,img:"https://dummyimage.com/600x400/ced4da/000&text=Logitech+Pro+X"}
     ];
 
-    const grid       = document.getElementById("product-grid");
-    const cartModal  = document.getElementById("cart-modal");
-    const cartCount  = document.getElementById("cart-count");
-    const cartItemsDiv = document.getElementById("cart-items");
-    const cartTotal  = document.getElementById("cart-total");
-    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    /********************  State & Storage  ********************/
+    const state = {
+      cart: JSON.parse(localStorage.getItem("bluetek_cart") || "[]"),
+      filter: "ALL"
+    };
 
-    function renderProducts () {
-      grid.innerHTML = "";
-      products.forEach(p => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <div style="position:relative">
-            <img src="${p.img}" alt="${p.name}" />
-            ${!p.stock ? '<span class="badge out">OUT OF STOCK</span>' : ''}
-            ${p.sale   ? '<span class="badge sale">SALE</span>'          : ''}
-          </div>
-          <div class="info">
-            <h3>${p.name}</h3>
-            <div class="price">${p.price.toLocaleString()} CFA</div>
-            <button class="btn" ${!p.stock ? 'disabled' : ''} onclick="addToCart(${p.id})">Ajouter au panier</button>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
+    /********************  DOM refs  ********************/
+    const productsEl  = document.getElementById("products");
+    const navEl       = document.getElementById("categoryNav");
+    const cartBtn     = document.getElementById("toggleCart");
+    const cartDrawer  = document.getElementById("cartDrawer");
+    const closeCart   = document.getElementById("closeCart");
+    const cartItemsEl = document.getElementById("cartItems");
+    const cartTotalEl = document.getElementById("cartTotal");
+    const cartCountEl = document.getElementById("cartCount");
+
+    /********************  Render Functions  ********************/
+    function renderCategories() {
+      const cats = ["ALL",...new Set(catalogue.map(p=>p.cat))];
+      navEl.innerHTML = cats.map(c=>`<a href="#" data-cat="${c}" class="${state.filter===c?"active":''}">${c}</a>`).join("");
     }
 
-    function addToCart (id) {
-      const prod = products.find(p => p.id === id);
-      cart.push(prod);
-      updateCart();
+    function renderProducts() {
+      const list = state.filter==="ALL" ? catalogue : catalogue.filter(p=>p.cat===state.filter);
+      productsEl.innerHTML = list.map(p=>`
+        <div class="card">
+          <img src="${p.img}" alt="${p.name}" />
+          <h3>${p.name}</h3>
+          <p>${p.price.toLocaleString()} CFA</p>
+          <button onclick="addToCart(${p.id})">Ajouter au panier</button>
+        </div>
+      `).join("");
     }
 
-    function updateCart () {
-      localStorage.setItem("cart", JSON.stringify(cart));
-      cartCount.textContent = cart.length;
-      cartItemsDiv.innerHTML = "";
-      let total = 0;
-      cart.forEach(item => {
-        total += item.price;
-        const ci = document.createElement("div");
-        ci.className = "cart-item";
-        ci.innerHTML = `<span>${item.name}</span><span>${item.price.toLocaleString()} CFA</span>`;
-        cartItemsDiv.appendChild(ci);
-      });
-      cartTotal.textContent = `Total : ${total.toLocaleString()} CFA`;
+    function renderCart() {
+      cartItemsEl.innerHTML = state.cart.length ? state.cart.map(item=>`
+        <div class="cart-item">
+          <span>${item.name}</span>
+          <span>${item.price.toLocaleString()} CFA</span>
+          <button onclick="removeFromCart(${item.id})">−</button>
+        </div>`).join("") : '<p style="text-align:center;">Votre panier est vide 🛒</p>';
+      const total = state.cart.reduce((acc,it)=>acc+it.price,0);
+      cartTotalEl.textContent = `Total : ${total.toLocaleString()} CFA`;
+      cartCountEl.textContent = state.cart.length;
     }
 
-    // ——— Events ———
-    document.getElementById("cart-button").addEventListener("click", () => cartModal.classList.toggle("open"));
-    document.getElementById("clear-cart").addEventListener("click", () => { cart = []; updateCart(); });
-    window.addEventListener("load", () => { renderProducts(); updateCart(); });
+    /********************  Cart Actions  ********************/
+    window.addToCart = id => {
+      const product = catalogue.find(p=>p.id===id);
+      state.cart.push(product);
+      persistCart();
+      renderCart();
+    };
+
+    window.removeFromCart = id => {
+      const idx = state.cart.findIndex(i=>i.id===id);
+      if(idx>-1) state.cart.splice(idx,1);
+      persistCart();
+      renderCart();
+    }
+
+    function persistCart(){
+      localStorage.setItem("bluetek_cart",JSON.stringify(state.cart));
+    }
+
+    /********************  Event Listeners  ********************/
+    navEl.addEventListener("click",e=>{
+      if(e.target.dataset.cat){
+        state.filter = e.target.dataset.cat;
+        renderCategories();
+        renderProducts();
+        e.preventDefault();
+      }
+    });
+
+    cartBtn.addEventListener("click",()=>cartDrawer.classList.add("open"));
+    closeCart.addEventListener("click",()=>cartDrawer.classList.remove("open"));
+
+    /********************  Init  ********************/
+    renderCategories();
+    renderProducts();
+    renderCart();
   </script>
 </body>
 </html>
